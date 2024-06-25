@@ -10,12 +10,15 @@ namespace Discount.Middlewares
         private readonly ILogger<AuthMiddleware> _logger;
         private readonly RequestDelegate _next;
         private readonly User _user;
+        private readonly IConfiguration _configuration;
 
-        public AuthMiddleware(ILogger<AuthMiddleware> logger, RequestDelegate next, User user)
+        public AuthMiddleware(ILogger<AuthMiddleware> logger, RequestDelegate next, User user, 
+            IConfiguration configuration)
         {
             _next = next;
             _logger = logger;
             _user = user;
+            _configuration = configuration;
         }
 
         public async Task Invoke(HttpContext context)
@@ -42,7 +45,7 @@ namespace Discount.Middlewares
             }
             else // look for it in auth service
             {
-                var httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:3000") };
+                var httpClient = new HttpClient { BaseAddress = new Uri(_configuration["Uris:AuthService"]!) };
 
                 httpClient.DefaultRequestHeaders.Add("Authorization", bearerToken);
 
