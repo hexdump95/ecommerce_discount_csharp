@@ -1,17 +1,22 @@
 using System.Net.Mime;
 
+using Discount.Middlewares.Models;
 using Discount.Rest.Dtos;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace Discount.Rest;
 
 [ApiController]
 public class PostCoupon : ControllerBase
 {
-    public PostCoupon()
+    private readonly User _user;
+    private readonly ILogger<PostCoupon> _logger;
+
+    public PostCoupon(User user, ILogger<PostCoupon> logger)
     {
+        _user = user;
+        _logger = logger;
     }
 
     [HttpPost("v1/coupons")]
