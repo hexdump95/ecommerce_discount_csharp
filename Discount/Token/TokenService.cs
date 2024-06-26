@@ -1,7 +1,6 @@
 using System.Text.Json;
 
 using Discount.Middlewares.Models;
-using Discount.Tools.Redis;
 
 using StackExchange.Redis;
 
@@ -22,7 +21,7 @@ namespace Discount.Token
         private readonly ILogger<TokenService> _logger;
 
         public TokenService(
-            IRedisConnection redisConnection, ILogger<TokenService> logger
+            IConnectionMultiplexer redisConnection, ILogger<TokenService> logger
         )
         {
             _database = redisConnection.GetDatabase();
