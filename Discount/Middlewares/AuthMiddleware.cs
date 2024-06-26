@@ -34,11 +34,8 @@ namespace Discount.Middlewares
             var userInDb = await tokenService.FindByToken(token);
             if (userInDb != null)
             {
-                loggedInUser.Id = userInDb.Id;
-                loggedInUser.Name = userInDb.Name;
-                loggedInUser.Login = userInDb.Login;
-                loggedInUser.Permissions = userInDb.Permissions;
-
+                context.Items.Add("loggedInUser", userInDb);
+                
                 _logger.LogDebug("token from db");
             }
             else
@@ -63,10 +60,7 @@ namespace Discount.Middlewares
                     return;
                 }
 
-                loggedInUser.Id = user.Id;
-                loggedInUser.Login = user.Login;
-                loggedInUser.Name = user.Name;
-                loggedInUser.Permissions = user.Permissions;
+                context.Items.Add("loggedInUser", user);
 
                 await tokenService.SaveToken(token, user);
 

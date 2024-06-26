@@ -10,6 +10,7 @@ namespace Discount.Token
     {
         Task<LoggedInUser?> FindByToken(string token);
         Task SaveToken(string token, LoggedInUser user);
+        Task<bool> DeleteToken(string token);
     }
 
     public class TokenService : ITokenService
@@ -48,6 +49,13 @@ namespace Discount.Token
             var jsonString = JsonSerializer.Serialize(user, _jsonOptions);
             await _database.SetAddAsync(EntityPluralName, token);
             await _database.StringSetAsync($"{EntityName}:{token}", jsonString);
+        }
+
+        public async Task<bool> DeleteToken(string token)
+        {
+            var isSetDeleted = await _database.SetRemoveAsync(EntityPluralName, token);
+            var isStringDeleted = await _database.KeyDeleteAsync($"{EntityName}:{token}");
+            return isSetDeleted && isStringDeleted;
         }
     }
 }

@@ -1,5 +1,4 @@
 using Discount.Middlewares;
-using Discount.Middlewares.Models;
 using Discount.Rabbit;
 using Discount.Token;
 
@@ -8,7 +7,6 @@ using StackExchange.Redis;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddTransient<LoggedInUser>();
 builder.Services.AddTransient<ITokenService, TokenService>();
 builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
 {
