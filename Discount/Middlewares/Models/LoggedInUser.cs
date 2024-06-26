@@ -1,6 +1,6 @@
 namespace Discount.Middlewares.Models
 {
-    public class User
+    public class LoggedInUser
     {
         public string Id { get; set; } = null!;
         public string Name { get; set; } = null!;

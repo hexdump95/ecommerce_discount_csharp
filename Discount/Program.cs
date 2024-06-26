@@ -1,10 +1,19 @@
 using Discount.Middlewares;
 using Discount.Middlewares.Models;
+using Discount.Token;
+using Discount.Tools.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddSingleton<User>();    
+builder.Services.AddSingleton<LoggedInUser>();
+builder.Services.AddSingleton<ITokenService, TokenService>();
+builder.Services.AddSingleton<IRedisConnection>(provider =>
+{
+    var configuration = provider.GetRequiredService<IConfiguration>();
+    var connectionString = configuration["Uris:RedisUrl"]!;
+    return new RedisConnection(connectionString);
+});
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

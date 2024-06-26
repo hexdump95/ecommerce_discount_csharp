@@ -1,6 +1,7 @@
 using System.Net;
 
 using Discount.Middlewares.Models;
+using Discount.Token;
 
 namespace Discount.Middlewares
 {
@@ -9,16 +10,20 @@ namespace Discount.Middlewares
     {
         private readonly ILogger<AuthMiddleware> _logger;
         private readonly RequestDelegate _next;
-        private readonly User _user;
+        private readonly LoggedInUser _user;
         private readonly IConfiguration _configuration;
+        private readonly ITokenService _tokenService;
 
-        public AuthMiddleware(ILogger<AuthMiddleware> logger, RequestDelegate next, User user, 
-            IConfiguration configuration)
+        public AuthMiddleware(ILogger<AuthMiddleware> logger, RequestDelegate next, LoggedInUser user,
+            IConfiguration configuration
+            , ITokenService tokenService
+        )
         {
             _next = next;
             _logger = logger;
             _user = user;
             _configuration = configuration;
+            _tokenService = tokenService;
         }
 
         public async Task Invoke(HttpContext context)
@@ -31,21 +36,20 @@ namespace Discount.Middlewares
                 return;
             }
 
-            // First, check in the db
-            var tokenInDb = false; // something like: tokenRepository.FindByToken(bearerToken);
-            if (tokenInDb) // if exists, get the User and map to _user
+            var token = bearerToken.Split(" ")[1];
+            var userInDb = await _tokenService.FindByToken(token);
+            if (userInDb != null)
             {
-                _user.Id = "123";
-                _user.Name = "user";
-                _user.Login = "user";
-                _user.Permissions = ["user", "admin"];
+                _user.Id = userInDb.Id;
+                _user.Name = userInDb.Name;
+                _user.Login = userInDb.Login;
+                _user.Permissions = userInDb.Permissions;
 
-                _logger.LogInformation("token from db");
-                await _next(context);
+                _logger.LogDebug("token from db");
             }
-            else // look for it in auth service
+            else
             {
-                var httpClient = new HttpClient { BaseAddress = new Uri(_configuration["Uris:AuthService"]!) };
+                var httpClient = new HttpClient { BaseAddress = new Uri(_configuration["Uris:AuthServiceUrl"]!) };
 
                 httpClient.DefaultRequestHeaders.Add("Authorization", bearerToken);
 
@@ -57,7 +61,7 @@ namespace Discount.Middlewares
                     return;
                 }
 
-                var user = await response.Content.ReadFromJsonAsync<User>();
+                var user = await response.Content.ReadFromJsonAsync<LoggedInUser>();
 
                 if (user == null)
                 {
@@ -70,10 +74,12 @@ namespace Discount.Middlewares
                 _user.Name = user.Name;
                 _user.Permissions = user.Permissions;
 
-                // now save it in the db...
+                await _tokenService.SaveToken(token, user);
 
-                await _next(context);
+                _logger.LogDebug("token from auth service");
             }
+
+            await _next(context);
         }
     }
 }

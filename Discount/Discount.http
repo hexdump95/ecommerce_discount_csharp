@@ -1,6 +1,0 @@
-@Discount_HostAddress = http://localhost:5014
-
-GET {{Discount_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
