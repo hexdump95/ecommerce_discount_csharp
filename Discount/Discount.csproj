@@ -7,6 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Protobuf Include="Grpc\Protos\coupon.proto" GrpcServices="Server"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Grpc.AspNetCore" Version="2.63.0" />
         <PackageReference Include="StackExchange.Redis" Version="2.8.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
     </ItemGroup>
