@@ -1,6 +1,7 @@
 using Discount.Grpc;
 using Discount.Middlewares;
 using Discount.Middlewares.Models;
+using Discount.Rabbit;
 using Discount.Token;
 
 using StackExchange.Redis;
@@ -15,6 +16,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
     var connectionString = builder.Configuration["Uris:RedisUrl"]!;
     return ConnectionMultiplexer.Connect(connectionString);
 });
+builder.Services.AddHostedService<RabbitLogoutService>();
 builder.Services.AddGrpc();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
